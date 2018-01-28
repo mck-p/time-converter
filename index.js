@@ -168,7 +168,49 @@ const converter = {
   s: seconds,
   m: minutes,
   h: hours,
-  d: days
+  d: days,
 }
 
-module.exports = converter
+const tokenizeInput = input => input
+  .split(/\s/)
+  .slice(0, 2)
+
+const getTypeFromTypes = types => types
+  .lastIndexOf('s') === types.length - 1
+  ? types.slice(0, -1)
+  : types
+
+const getConverterType = type => {
+  const initials = {
+    'millisecond': 'ms',
+    'second': 's',
+    'minute': 'm',
+    'hour': 'h',
+    'day': 'd' 
+  }
+
+  return initials[type]
+}
+
+const innerTo = from => to => {
+  const toType = getTypeFromTypes(to)
+  const [fromNum, fromType] = from
+
+  const cFrom = getConverterType(fromType)
+  const cTo = getConverterType(toType)
+
+  return converter[cFrom].to[cTo](fromNum)
+}
+
+const from = str => {
+  const [num, types] = tokenizeInput(str)
+  const type = getTypeFromTypes(types)
+
+  return {
+    to: innerTo([num, type])
+  }
+}
+
+module.exports = Object.assign({}, converter, {
+  from
+})

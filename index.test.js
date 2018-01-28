@@ -420,4 +420,43 @@ describe('Millisecond Converter', () => {
       expect(actual).toBe(expected)
     })
   })
+
+  describe('from', () => {
+    it('takes a string as input and returns an object with a to method', () => {
+      const from = '1 day'
+      const expected = true
+      const actual = 'to' in converter.from(from)
+
+      expect(actual).toBe(expected)
+    })
+
+    describe('from().to', () => {
+      it('returns the conversion for day to hours', () => {
+        const from = '1 day'
+        const to = 'hours'
+        const expected = 24
+        const actual = converter.from(from).to(to)
+
+        expect(actual).toBe(expected)
+      })
+
+      it('returns the conversion for days to hours', () => {
+        const from = '2 days'
+        const to = 'hours'
+        const expected = 48
+        const actual = converter.from(from).to(to)
+
+        expect(actual).toBe(expected)
+      })
+
+      it('returns the conversion for minutes to seconds', () => {
+        const from = '1 minute'
+        const to = 'seconds'
+        const expected = 60
+        const actual = converter.from(from).to(to)
+
+        expect(actual).toBe(expected)
+      })
+    })
+  })
 })
