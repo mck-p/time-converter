@@ -1,0 +1,17 @@
+{
+  "name": "@mck-p/time-converter",
+  "version": "0.0.1",
+  "description": "A basic Millisecond/Days converter",
+  "main": "index.js",
+  "author": "Tim Roberts <tim@mck-p.com>",
+  "license": "MIT",
+  "private": false,
+  "devDependencies": {
+    "jest": "^22.1.4"
+  },
+  "scripts": {
+    "test": "jest",
+    "test:w": "jest --watch",
+    "coverage": "jest --coverage"
+  }
+}
