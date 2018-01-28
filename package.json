@@ -1,6 +1,6 @@
 {
   "name": "@mck-p/time-converter",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A basic Millisecond/Days converter",
   "main": "index.js",
   "author": "Tim Roberts <tim@mck-p.com>",
