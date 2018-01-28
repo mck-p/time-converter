@@ -102,3 +102,5 @@ timeConverter.d.to.h(days) // 24
       * `m` - `1 -> 60 * 24`
       * `h` - `1 -> 24`
       * `d` - `1 -> 1`
+
+* `from` : `'1 day' -> { to: 'hours' -> 24 }`
