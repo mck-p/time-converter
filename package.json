@@ -1,7 +1,13 @@
 {
   "name": "@mck-p/time-converter",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "A basic Millisecond/Days converter",
+  "keywords": [
+    "time-conversion",
+    "millisecond-conversion",
+    "dates",
+    "time"
+  ],
   "main": "index.js",
   "author": "Tim Roberts <tim@mck-p.com>",
   "license": "MIT",
@@ -10,8 +16,6 @@
     "jest": "^22.1.4"
   },
   "scripts": {
-    "test": "jest",
-    "test:w": "jest --watch",
-    "coverage": "jest --coverage"
+    "test": "jest"
   }
 }

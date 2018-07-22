@@ -1,6 +1,6 @@
 # time-converter
 
-> Conversions between milliseconds and days or anywhere in between.
+> Conversions between milliseconds and weeks or anywhere in between.
 
 _**Naming Convetion**_
 
@@ -9,6 +9,7 @@ _**Naming Convetion**_
 * `m` - minute
 * `h` - hour
 * `d` - day
+* `w` - week
 
 ## Usage
 
@@ -29,10 +30,28 @@ timeConverter.h.to.d(hours) // 1
 
 const days = 1
 timeConverter.d.to.h(days) // 24
+
+const weeks = 1
+timeConverter.w.to.d(weeks) // 7
+
+/** We also export them named! **/
+
+timeConverter.milliseconds.to.seconds(1000) // 1
 ```
 
 ## API
- 
+
+All `initials` are also accessible via their plural names:
+
+```
+ms -> milliseconds
+s -> seconds
+m -> minutes
+h -> hours
+d -> days
+w -> weeks
+```
+
 * `ms`
   - `from`:
       * `ms` - `1 -> 1`
@@ -104,3 +123,7 @@ timeConverter.d.to.h(days) // 24
       * `d` - `1 -> 1`
 
 * `from` : `'1 day' -> { to: 'hours' -> 24 }`
+    * You can give `from` a multi-value, separated by commas:
+        - `converter.from('1 day, 14 hours, 3 minutes, 2 seconds').to('milliseconds')`
+    * You can mix-n-match in the from
+        - `converter.from('1 day, 14 hr, 3 minutes, 2 s').to('ms')`

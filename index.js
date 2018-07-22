@@ -18,6 +18,10 @@ const hToM = h => h * 60
 const hToD = h => h / 24
 const dToH = d => d * 24
 
+/* Days/Weeks */
+const dToW = d => d / 7
+const wToD = w => w * 7
+
 const mToMs = compose(
   sToMs,
   mToS
@@ -48,20 +52,32 @@ const dToMs = compose(
   dToH
 )
 
+const msToW = compose(
+  dToW,
+  msToD
+)
+
+const wToMs = compose(
+  dToMs,
+  wToD
+)
+
 const milliseconds = {
   to: {
     ms: id,
     s: msToS,
     m: msToM,
     h: msToH,
-    d: msToD
+    d: msToD,
+    w: msToW,
   },
   from: {
     ms: id,
     s: sToMs,
     m: mToMs,
     h: hToMs,
-    d: dToMs
+    d: dToMs,
+    w: wToMs
   }
 }
 
@@ -85,13 +101,24 @@ const dToS = compose(
   dToH
 )
 
+const sToW = compose(
+  dToW,
+  sToD
+)
+
+const wToS = compose(
+  dToS,
+  wToD
+)
+
 const seconds = {
   to: {
     ms: sToMs,
     s: id,
     m: sToM,
     h: sToH,
-    d: sToD
+    d: sToD,
+    w: sToW
   },
   from: {
     ms: msToS,
@@ -99,6 +126,7 @@ const seconds = {
     m: mToS,
     h: hToS,
     d: dToS,
+    w: wToS
   }
 }
 
@@ -112,22 +140,44 @@ const dToM = compose(
   dToH
 )
 
+const mToW = compose(
+  dToW,
+  mToD
+)
+
+const wToM = compose(
+  dToM,
+  wToD
+)
+
 const minutes = {
   to: {
     ms: mToMs,
     s: mToS,
     m: id,
     h: mToH,
-    d: mToD
+    d: mToD,
+    w: mToW,
   },
   from: {
     ms: msToM,
     s: sToM,
     m: id,
     h: hToM,
-    d: dToM
+    d: dToM,
+    w: wToM
   }
 }
+
+const wToH = compose(
+  dToH,
+  wToD
+)
+
+const hToW = compose(
+  dToW,
+  hToD
+)
 
 const hours = {
   to: {
@@ -136,13 +186,15 @@ const hours = {
     m: hToM,
     h: id,
     d: hToD,
+    w: hToW,
   },
   from: {
     ms: msToH,
     s: sToH,
     m: mToH,
     h: id,
-    d: dToH
+    d: dToH,
+    w: wToH
   }
 }
 
@@ -152,7 +204,8 @@ const days = {
     s: dToS,
     m: dToM,
     h: dToH,
-    d: id
+    d: id,
+    w: dToW,
   },
   from: {
     ms: msToD,
@@ -160,6 +213,26 @@ const days = {
     m: mToD,
     h: hToD,
     d: id,
+    w: wToD,
+  }
+}
+
+const weeks = {
+  to: {
+    ms: wToMs,
+    s: wToS,
+    m: wToM,
+    h: wToH,
+    d: wToD,
+    w: id,
+  },
+  from: {
+    ms: msToW,
+    s: sToW,
+    m: mToW,
+    h: hToW,
+    d: dToW,
+    w: id,
   }
 }
 
@@ -169,48 +242,86 @@ const converter = {
   m: minutes,
   h: hours,
   d: days,
+  w: weeks,
+}
+
+const initialMap = {
+  ms: 'millisecond',
+  s: 'second',
+  m: 'minute',
+  h: 'hour',
+  d: 'day',
+  w: 'week'
+}
+
+const wordMap = Object.keys(initialMap)
+  .reduce((a, c) => Object.assign({}, a, {
+    [initialMap[c]]: c
+  }), {})
+
+const unitFromInput = input => {
+  // they used an initial!
+  if (input in initialMap) {
+    // so we return the initial!
+    return input
+  }
+
+  const word = getTypeFromTypes(input)
+  
+  if (!(word in wordMap)) {
+    throw new Error(`Cannot transfrom input ${input} into a unit`)
+  }
+
+  return wordMap[word]
 }
 
 const tokenizeInput = input => input
-  .split(/\s/)
-  .slice(0, 2)
+  .split(', ') // groups
+  .map(group => {
+    const [n, i] = group.split(/\s/)
+    // Return the input number as a number
+    return ([Number(n), unitFromInput(i)])
+  })
 
 const getTypeFromTypes = types => types
   .lastIndexOf('s') === types.length - 1
   ? types.slice(0, -1)
   : types
 
-const getConverterType = type => {
-  const initials = {
-    'millisecond': 'ms',
-    'second': 's',
-    'minute': 'm',
-    'hour': 'h',
-    'day': 'd' 
-  }
-
-  return initials[type]
-}
-
-const innerTo = from => to => {
-  const toType = getTypeFromTypes(to)
-  const [fromNum, fromType] = from
-
-  const cFrom = getConverterType(fromType)
-  const cTo = getConverterType(toType)
-
-  return converter[cFrom].to[cTo](fromNum)
+const innerTo = groups => to => {
+  const toUnit = unitFromInput(to)
+  return groups
+    .reduce(
+      (sum, [num, unit]) =>
+        sum + converter[unit].to[toUnit](num),
+      0
+    )
 }
 
 const from = str => {
-  const [num, types] = tokenizeInput(str)
-  const type = getTypeFromTypes(types)
+  const groups = tokenizeInput(str)
 
   return {
-    to: innerTo([num, type])
+    to: innerTo(groups)
   }
 }
 
-module.exports = Object.assign({}, converter, {
+const getExportKey = k => initialMap[k] + 's'
+
+const wordifyExport = obj => Object.keys(obj).reduce((a, c) => ({
+  ...a,
+  [getExportKey(c)]: {
+    from: Object.keys(obj[c].from).reduce((aa, cc) => ({
+      ...aa,
+      [getExportKey(cc)]: obj[c].from[cc]
+    }), obj[c].from),
+    to: Object.keys(obj[c].to).reduce((aa, cc) => ({
+      ...aa,
+      [getExportKey(cc)]: obj[c].to[cc]
+    }), obj[c].to)
+  }
+}), obj)
+
+module.exports = Object.assign({}, wordifyExport(converter), {
   from
 })
