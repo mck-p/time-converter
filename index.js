@@ -308,19 +308,32 @@ const from = str => {
 
 const getExportKey = k => initialMap[k] + 's'
 
-const wordifyExport = obj => Object.keys(obj).reduce((a, c) => ({
-  ...a,
-  [getExportKey(c)]: {
-    from: Object.keys(obj[c].from).reduce((aa, cc) => ({
-      ...aa,
-      [getExportKey(cc)]: obj[c].from[cc]
-    }), obj[c].from),
-    to: Object.keys(obj[c].to).reduce((aa, cc) => ({
-      ...aa,
-      [getExportKey(cc)]: obj[c].to[cc]
-    }), obj[c].to)
-  }
-}), obj)
+const wordifyExport = obj =>
+  Object.keys(obj).reduce((a, c) =>
+    Object.assign(
+      {},
+      a,
+      {
+        [getExportKey(c)]: {
+          from: Object.keys(obj[c].from).reduce(
+            (aa, cc) =>
+              Object.assign({}, aa, {
+                [getExportKey(cc)]: obj[c].from[cc]
+              }),
+            obj[c].from
+          ),
+          to: Object.keys(obj[c].to).reduce(
+            (aa, cc) =>
+              Object.assign({}, aa, {
+                [getExportKey(cc)]: obj[c].to[cc]
+              }),
+            obj[c].to
+          )
+        }
+      },
+      obj
+    )
+  );
 
 module.exports = Object.assign({}, wordifyExport(converter), {
   from
